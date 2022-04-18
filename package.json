@@ -1,0 +1,31 @@
+{
+  "name": "aizon-api",
+  "version": "1.0.0",
+  "description": "Sample API for Aizon solutions",
+  "main": "index.js",
+  "devDependencies": {
+    "aws-sdk": "2.814.0",
+    "jest": "^27.5.1",
+    "aws-xray-sdk-core": "1.1.2"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xGuIInE/aizon-api.git"
+  },
+  "keywords": [
+    "aws",
+    "api",
+    "node-js",
+    "serverless",
+    "auth"
+  ],
+  "author": "guuinea@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xGuIInE/aizon-api/issues"
+  },
+  "homepage": "https://github.com/xGuIInE/aizon-api#readme"
+}
