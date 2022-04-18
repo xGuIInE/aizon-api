@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: Sample API for Aizon solutions.
+
+Parameters:
+  Environment:
+    Description: Environment prefixed to resource names
+    Type: String
+
+Resources:
+  # USER POOLS
+  adminPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${Environment} Aizon admins
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+  clientPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${Environment} Aizon clients
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+  # POOLS APP CLIENTS
+  adminPoolAppClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: !Sub ${Environment}-admin-client
+      GenerateSecret: true
+      UserPoolId: !Ref adminPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+  clientPoolAppClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: !Sub ${Environment}-app-client
+      GenerateSecret: false
+      UserPoolId: !Ref clientPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
