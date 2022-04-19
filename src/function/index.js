@@ -1,8 +1,15 @@
 const AWS = require("aws-sdk");
-const { formatHttpResponse, formatHttpError } = require("./http/responses.js");
-const { createUser, deleteUser } = require("./users/manageUsers");
 AWS.config.update({ region: "eu-west-1" });
 const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
+const { formatHttpResponse, formatHttpError } = require("./http/responses.js");
+const { createUser, deleteUser } = require("./users/manageUsers");
+const {
+  JSON_BODY_REQUIRED,
+  EMAIL_REQUIRED,
+  INTERNAL,
+  HTTP_METHOD_ERROR,
+} = require("./errors/messages");
+const parseJSON = require("./utils/parseJSON");
 
 exports.adminUsers = async function (event, context) {
   const {
@@ -15,19 +22,28 @@ exports.adminUsers = async function (event, context) {
     },
   } = event;
 
-  const { email } = JSON.parse(body);
-
   const { USER_POOL_ID } = process.env;
+
+  let email;
+
+  if (parseJSON(body)) {
+    email = parseJSON(body).email;
+  } else {
+    return formatHttpError({
+      statusCode: 400,
+      message: JSON_BODY_REQUIRED,
+    });
+  }
 
   if (!email)
     return formatHttpError({
       statusCode: 400,
-      message: "Email required",
+      message: EMAIL_REQUIRED,
     });
+
   switch (httpMethod) {
     case "POST":
       try {
-        console.log("POST");
         await createUser(email, {
           adminEmail,
           USER_POOL_ID,
@@ -37,7 +53,7 @@ exports.adminUsers = async function (event, context) {
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
-          message: "Internal server error " + error,
+          message: INTERNAL + error,
         });
       }
     case "DELETE":
@@ -51,13 +67,13 @@ exports.adminUsers = async function (event, context) {
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
-          message: "Internal server error " + error,
+          message: INTERNAL + error,
         });
       }
     default:
       return formatHttpError({
         statusCode: 400,
-        message: "Only POST / DELETE request allowed",
+        message: HTTP_METHOD_ERROR,
       });
   }
 };
