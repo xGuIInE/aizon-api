@@ -1,5 +1,4 @@
 const createUser = async function (email, context) {
-  console.log("creating user...");
   const { USER_POOL_ID, adminEmail, cognitoIdentityServiceProvider } = context;
   const userData = {
     UserPoolId: USER_POOL_ID,
