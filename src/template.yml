@@ -40,7 +40,6 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_PASSWORD_AUTH
-
   clientPoolAppClient:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
@@ -51,3 +50,70 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_PASSWORD_AUTH
+  # API GATEWAY
+  api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: api
+      TracingEnabled: true
+      OpenApiVersion: 3.0.2
+      Auth:
+        Authorizers:
+          AdminUsers:
+            UserPoolArn:
+              Fn::GetAtt:
+                - adminPool
+                - Arn
+            AuthType: "COGNITO_USER_POOLS"
+        DefaultAuthorizer: AdminUsers
+  apiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref api
+      Description: !Sub Aizon ${Environment} API
+      StageName: !Sub ${Environment}
+
+  cognitoAllow:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Managed policy to allow cognito access
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "cognito-idp:*"
+            Resource: "*"
+  # LAMBDA FUNCTIONS
+  adminUsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.adminUsers
+      Runtime: nodejs14.x
+      CodeUri: function/.
+      Description: Manage users
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - !Ref cognitoAllow
+
+      Tracing: Active
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref clientPool
+          USER_POOL_APP_ID: !Ref clientPoolAppClient
+      Events:
+        createUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref api
+            Path: /user
+            Method: POST
+        deleteUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref api
+            Path: /user
+            Method: DELETE
