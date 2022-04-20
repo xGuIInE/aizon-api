@@ -8,6 +8,58 @@ Parameters:
     Type: String
 
 Resources:
+  # Tables
+  SolutionsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "owner"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "owner"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Sub ${Environment}-aizon-solutions
+  ScreensTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "solution_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "solution_id"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Sub ${Environment}-aizon-screens
+  WidgetsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "screen_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "screen_id"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Sub ${Environment}-aizon-widgets
   # USER POOLS
   adminPool:
     Type: AWS::Cognito::UserPool
@@ -50,11 +102,12 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
   # API GATEWAY
-  api:
+  adminApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: api
+      StageName: !Sub ${Environment}-admin-api
       TracingEnabled: true
       OpenApiVersion: 3.0.2
       Auth:
@@ -66,13 +119,14 @@ Resources:
                 - Arn
             AuthType: "COGNITO_USER_POOLS"
         DefaultAuthorizer: AdminUsers
-  apiDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    Properties:
-      RestApiId: !Ref api
-      Description: !Sub Aizon ${Environment} API
-      StageName: !Sub ${Environment}
+  # clientsApi:
+  #   Type: AWS::Serverless::Api
+  #   Properties:
+  #     StageName: !Sub ${Environment}-clients-api
+  #     TracingEnabled: true
+  #     OpenApiVersion: 3.0.2
 
+  # PERMISSIONS
   cognitoAllow:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -88,11 +142,12 @@ Resources:
   adminUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.adminUsers
+      Handler: admin.adminUsers
       Runtime: nodejs14.x
       CodeUri: function/.
       Description: Manage users
       Timeout: 10
+      FunctionName: !Sub ${Environment}-admin-users-function
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
@@ -103,17 +158,188 @@ Resources:
       Environment:
         Variables:
           USER_POOL_ID: !Ref clientPool
-          USER_POOL_APP_ID: !Ref clientPoolAppClient
+          # USER_POOL_APP_ID: !Ref clientPoolAppClient
       Events:
         createUser:
           Type: Api
           Properties:
-            RestApiId: !Ref api
-            Path: /user
+            RestApiId: !Ref adminApi
+            Path: /users
             Method: POST
         deleteUser:
           Type: Api
           Properties:
-            RestApiId: !Ref api
-            Path: /user
+            RestApiId: !Ref adminApi
+            Path: /users
             Method: DELETE
+
+  adminSolutionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: admin.adminSolutions
+      Runtime: nodejs14.x
+      CodeUri: function/.
+      Description: Manage aizon solutions
+      Timeout: 10
+      FunctionName: !Sub ${Environment}-admin-solutions-function
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBWritePolicy:
+            TableName: !Ref SolutionsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref SolutionsTable
+      Tracing: Active
+      Environment:
+        Variables:
+          SOLUTIONS_TABLE_NAME: !Ref SolutionsTable
+          # PENDING
+      Events:
+        getSolutions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /solutions
+            Method: GET
+        createSolution:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /solutions
+            Method: POST
+        modifySolution:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /solutions
+            Method: PATCH
+        deleteSolution:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /solutions
+            Method: DELETE
+
+  adminScreensFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: admin.adminScreens
+      Runtime: nodejs14.x
+      CodeUri: function/.
+      Description: Manage aizon screens
+      Timeout: 10
+      FunctionName: !Sub ${Environment}-admin-screens-function
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBWritePolicy:
+            TableName: !Ref ScreensTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ScreensTable
+      Tracing: Active
+      Environment:
+        Variables:
+          SCREENS_TABLE_NAME: !Ref ScreensTable
+          # PENDING
+      Events:
+        getScreens:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /screens
+            Method: GET
+        createScreen:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /screens
+            Method: POST
+        modifyScreen:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /screens
+            Method: PATCH
+        deleteScreen:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /screens
+            Method: DELETE
+
+  adminWidgetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: admin.adminWidgets
+      Runtime: nodejs14.x
+      CodeUri: function/.
+      Description: Manage aizon widgets
+      Timeout: 10
+      FunctionName: !Sub ${Environment}-admin-widgets-function
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBWritePolicy:
+            TableName: !Ref WidgetsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref WidgetsTable
+      Tracing: Active
+      Environment:
+        Variables:
+          WIDGETS_TABLE_NAME: !Ref WidgetsTable
+          # PENDING
+      Events:
+        getWidgets:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /widgets
+            Method: GET
+        createWidget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /widgets
+            Method: POST
+        modifyWidget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /widgets
+            Method: PATCH
+        deleteWidget:
+          Type: Api
+          Properties:
+            RestApiId: !Ref adminApi
+            Path: /widgets
+            Method: DELETE
+  # clientFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     Handler: admin.clientUsers
+  #     Runtime: nodejs14.x
+  #     CodeUri: function/.
+  #     Description: Manage users
+  #     Timeout: 10
+  #     FunctionName: !Sub ${Environment}-client-function
+  #     Policies:
+  #       - AWSLambdaBasicExecutionRole
+  #       - AWSLambda_ReadOnlyAccess
+  #       - AWSXrayWriteOnlyAccess
+  #       - !Ref cognitoAllow
+
+  #     Tracing: Active
+  #     Environment:
+  #       Variables:
+  #         USER_POOL_ID: !Ref clientPool
+  #         USER_POOL_APP_ID: !Ref clientPoolAppClient
+  #     Events:
+  #       logIn:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref clientsApi
+  #           Path: /auth
+  #           Method: POST

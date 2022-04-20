@@ -1,0 +1,14 @@
+{
+  "name": "function",
+  "version": "1.0.0",
+  "description": "Lambda functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "guuinea@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "uuid": "^8.3.2"
+  }
+}
