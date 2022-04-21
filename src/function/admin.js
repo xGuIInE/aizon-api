@@ -5,14 +5,20 @@ const dbClient = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 const { v4: uuidv4 } = require("uuid");
 const { formatHttpResponse, formatHttpError } = require("./http/responses.js");
 const { createUser, deleteUser } = require("./users/manageUsers");
-const { writeDB } = require("./db/manageDB");
+const {
+  writeDBSolution,
+  deleteDBSolution,
+  modifyDBSolution,
+  getDBSolutions,
+} = require("./db/manageDB");
+const { checkRequiredKeys } = require("./db/keys");
 const {
   JSON_BODY_REQUIRED,
   EMAIL_REQUIRED,
   INTERNAL,
   HTTP_METHOD_ERROR,
   EMAIL_AND_PASSWD_REQUIRED,
-  NAME_AND_OWNER_REQUIRED,
+  INVALID_FIELDS,
 } = require("./errors/messages");
 const parseJSON = require("./utils/parseJSON");
 
@@ -98,14 +104,16 @@ exports.adminSolutions = async function (event, context) {
 
   const { SOLUTIONS_TABLE_NAME } = process.env;
 
-  // REQUIRED    , optional
-  let name, owner, desc, icon;
+  let parsedBody;
 
-  if (parseJSON(body)) {
-    name = parseJSON(body).name;
-    owner = parseJSON(body).owner;
-    desc = parseJSON(body).desc || "";
-    icon = parseJSON(body).icon || "";
+  console.log(body);
+
+  if ((parsedBody = parseJSON(body))) {
+    if (!checkRequiredKeys(httpMethod, parsedBody))
+      return formatHttpError({
+        statusCode: 400,
+        message: INVALID_FIELDS,
+      });
   } else {
     return formatHttpError({
       statusCode: 400,
@@ -113,22 +121,52 @@ exports.adminSolutions = async function (event, context) {
     });
   }
 
-  if (!name || !owner)
-    return formatHttpError({
-      statusCode: 400,
-      message: NAME_AND_OWNER_REQUIRED,
-    });
-
   switch (httpMethod) {
+    case "GET":
+      try {
+        const solutions = await getDBSolutions(dbClient, {
+          TABLE_NAME: SOLUTIONS_TABLE_NAME,
+          ...parsedBody,
+        });
+        return formatHttpResponse(solutions);
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
     case "POST":
       try {
-        await writeDB(dbClient, {
+        await writeDBSolution(dbClient, {
           TABLE_NAME: SOLUTIONS_TABLE_NAME,
           uuid: uuidv4(),
-          owner,
-          name,
-          desc,
-          icon,
+          ...parsedBody,
+        });
+        return formatHttpResponse("OK");
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    case "PATCH":
+      try {
+        await modifyDBSolution(dbClient, {
+          TABLE_NAME: SOLUTIONS_TABLE_NAME,
+          ...parsedBody,
+        });
+        return formatHttpResponse("OK");
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    case "DELETE":
+      try {
+        await deleteDBSolution(dbClient, {
+          TABLE_NAME: SOLUTIONS_TABLE_NAME,
+          ...parsedBody,
         });
         return formatHttpResponse("OK");
       } catch (error) {

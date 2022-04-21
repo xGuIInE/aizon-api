@@ -186,9 +186,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
         - AWSXrayWriteOnlyAccess
-        - DynamoDBWritePolicy:
-            TableName: !Ref SolutionsTable
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref SolutionsTable
       Tracing: Active
       Environment:
@@ -234,9 +232,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
         - AWSXrayWriteOnlyAccess
-        - DynamoDBWritePolicy:
-            TableName: !Ref ScreensTable
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref ScreensTable
       Tracing: Active
       Environment:
@@ -282,9 +278,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
         - AWSXrayWriteOnlyAccess
-        - DynamoDBWritePolicy:
-            TableName: !Ref WidgetsTable
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref WidgetsTable
       Tracing: Active
       Environment:

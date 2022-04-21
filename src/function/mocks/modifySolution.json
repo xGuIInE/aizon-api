@@ -1,7 +1,7 @@
 {
-  "resource": "/user",
-  "path": "/user",
-  "httpMethod": "POST",
+  "resource": "/solutions",
+  "path": "/solutions",
+  "httpMethod": "PATCH",
   "headers": {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -65,7 +65,7 @@
         "jti": "f541c42f-8d52-47c6-b15a-7ae70eb686af"
       }
     },
-    "resourcePath": "/user",
+    "resourcePath": "/solutions",
     "httpMethod": "POST",
     "extendedRequestId": "QoMtSEIFjoEFztw=",
     "requestTime": "15/Apr/2022:15:25:08 +0000",
@@ -93,6 +93,6 @@
     "domainName": "bdl3dq9n3m.execute-api.eu-west-1.amazonaws.com",
     "apiId": "bdl3dq9n3m"
   },
-  "body": "{\"email\": \"guine0123@gmail.com\"}",
+  "body": "{\"id\": \"fe9f9bf0-e02a-4802-9cd3-665698afa5f8\", \"owner\": \"Guine\", \"name\": \"NuevoName\"}",
   "isBase64Encoded": false
 }
