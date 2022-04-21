@@ -1,4 +1,4 @@
-const index = require("./admin");
+const index = require("../admin");
 const AWSXRay = require("aws-xray-sdk-core");
 AWSXRay.setContextMissingStrategy("LOG_ERROR");
 const {
@@ -6,7 +6,7 @@ const {
   EMAIL_REQUIRED,
   HTTP_METHOD_ERROR,
   INVALID_FIELDS,
-} = require("./errors/messages");
+} = require("../errors/messages");
 const adminUserMock = require("./mocks/adminUsers.json");
 // Solution mocks
 const createSolutionMock = require("./mocks/solutions/createSolution.json");
@@ -18,6 +18,11 @@ const createScreenMock = require("./mocks/screens/createScreen.json");
 const deleteScreenMock = require("./mocks/screens/deleteScreen.json");
 const modifyScreenMock = require("./mocks/screens/modifyScreen.json");
 const getScreensMock = require("./mocks/screens/getScreen.json");
+// Widgets mocks
+const createWidgetMock = require("./mocks/widgets/createWidget.json");
+const deleteWidgetMock = require("./mocks/widgets/deleteWidget.json");
+const modifyWidgetMock = require("./mocks/widgets/modifyWidget.json");
+const getWidgetsMock = require("./mocks/widgets/getWidget.json");
 const SOLUTIONS_MOCK = { Items: [{ solutions: true }] };
 // jest.mock("aws-sdk");
 jest.mock("aws-sdk", () => {
@@ -196,6 +201,59 @@ describe("Manage screens", () => {
   test("Json body is required", async () => {
     createScreenMock.body = null;
     let response = await index.adminScreens(createScreenMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(JSON_BODY_REQUIRED);
+  });
+});
+
+describe("Manage widgets", () => {
+  test("Can create widgets", async () => {
+    let response = await index.adminWidgets(createWidgetMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can delete widgets", async () => {
+    let response = await index.adminWidgets(deleteWidgetMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can modify widgets", async () => {
+    let response = await index.adminWidgets(modifyWidgetMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can get widgets", async () => {
+    let response = await index.adminWidgets(getWidgetsMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe(SOLUTIONS_MOCK.Items);
+  });
+  test("Can't create widgets with bad fields", async () => {
+    createWidgetMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminWidgets(createWidgetMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Can't delete widgets with bad fields", async () => {
+    deleteWidgetMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminWidgets(deleteWidgetMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Can't modify widgets with bad fields", async () => {
+    modifyWidgetMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminWidgets(modifyWidgetMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Only GET/POST/DELETE/PATCH is allowed", async () => {
+    createWidgetMock.httpMethod = "PUT";
+    let response = await index.adminWidgets(createWidgetMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(HTTP_METHOD_ERROR);
+  });
+  test("Json body is required", async () => {
+    createWidgetMock.body = null;
+    let response = await index.adminWidgets(createWidgetMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(JSON_BODY_REQUIRED);
   });
