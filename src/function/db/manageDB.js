@@ -49,7 +49,6 @@ const modifyDBSolution = async function (dbClient, data) {
 
 const deleteDBSolution = async function (dbClient, data) {
   const { TABLE_NAME, id, owner } = data;
-  console.log(id);
   const params = {
     TableName: TABLE_NAME,
     Key: { id: { S: id }, owner: { S: owner } },
@@ -92,8 +91,6 @@ const writeDBScreen = async function (dbClient, data) {
     },
   };
 
-  console.log(JSON.stringify(params));
-
   await dbClient.batchWriteItem(params).promise();
   console.log(`Added screen in ${TABLE_NAME}`);
 };
@@ -118,15 +115,12 @@ const modifyDBScreen = async function (dbClient, data) {
     },
   };
 
-  console.log(JSON.stringify(params));
-
   await dbClient.batchWriteItem(params).promise();
   console.log(`Added screen in ${TABLE_NAME}`);
 };
 
 const deleteDBScreen = async function (dbClient, data) {
   const { TABLE_NAME, id, solution_id } = data;
-  console.log(id);
   const params = {
     TableName: TABLE_NAME,
     Key: { id: { S: id }, solution_id: { S: solution_id } },
@@ -134,6 +128,66 @@ const deleteDBScreen = async function (dbClient, data) {
 
   await dbClient.deleteItem(params).promise();
   console.log(`Deleted screen in ${TABLE_NAME}`);
+};
+
+// Widgets
+const writeDBWidget = async function (dbClient, data) {
+  const { TABLE_NAME, uuid, screen_id, name, desc, icon, data: wData } = data;
+  var params = {
+    RequestItems: {
+      [TABLE_NAME]: [
+        {
+          PutRequest: {
+            Item: {
+              id: { S: uuid },
+              screen_id: { S: screen_id },
+              name: { S: name },
+              data: { S: wData },
+              desc: { S: desc || "" },
+              icon: { S: icon || "" },
+            },
+          },
+        },
+      ],
+    },
+  };
+
+  await dbClient.batchWriteItem(params).promise();
+  console.log(`Added widget in ${TABLE_NAME}`);
+};
+const modifyDBWidget = async function (dbClient, data) {
+  const { TABLE_NAME, id, screen_id, name, desc, icon, data: wData } = data;
+  var params = {
+    RequestItems: {
+      [TABLE_NAME]: [
+        {
+          PutRequest: {
+            Item: {
+              id: { S: id },
+              screen_id: { S: screen_id },
+              name: { S: name },
+              data: { S: wData },
+              desc: { S: desc || "" },
+              icon: { S: icon || "" },
+            },
+          },
+        },
+      ],
+    },
+  };
+
+  await dbClient.batchWriteItem(params).promise();
+  console.log(`Added widget in ${TABLE_NAME}`);
+};
+const deleteDBWidget = async function (dbClient, data) {
+  const { TABLE_NAME, id, screen_id } = data;
+  const params = {
+    TableName: TABLE_NAME,
+    Key: { id: { S: id }, screen_id: { S: screen_id } },
+  };
+
+  await dbClient.deleteItem(params).promise();
+  console.log(`Deleted solution in ${TABLE_NAME}`);
 };
 
 module.exports = {
@@ -144,4 +198,7 @@ module.exports = {
   writeDBScreen,
   modifyDBScreen,
   deleteDBScreen,
+  writeDBWidget,
+  modifyDBWidget,
+  deleteDBWidget,
 };

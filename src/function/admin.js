@@ -13,10 +13,14 @@ const {
   writeDBScreen,
   modifyDBScreen,
   deleteDBScreen,
+  writeDBWidget,
+  modifyDBWidget,
+  deleteDBWidget,
 } = require("./db/manageDB");
 const {
   checkRequiredKeysForSolutions,
   checkRequiredKeysForScreens,
+  checkRequiredKeysForWidgets,
 } = require("./db/keys");
 const {
   JSON_BODY_REQUIRED,
@@ -257,7 +261,86 @@ exports.adminScreens = async function (event, context) {
       });
   }
 };
-exports.adminWidgets = async function (event, context) {};
+exports.adminWidgets = async function (event, context) {
+  const { httpMethod, body } = event;
+
+  const { WIDGETS_TABLE_NAME } = process.env;
+
+  let parsedBody;
+
+  if ((parsedBody = parseJSON(body))) {
+    if (!checkRequiredKeysForWidgets(httpMethod, parsedBody))
+      return formatHttpError({
+        statusCode: 400,
+        message: INVALID_FIELDS,
+      });
+  } else {
+    return formatHttpError({
+      statusCode: 400,
+      message: JSON_BODY_REQUIRED,
+    });
+  }
+
+  switch (httpMethod) {
+    case "POST":
+      try {
+        await writeDBWidget(dbClient, {
+          TABLE_NAME: WIDGETS_TABLE_NAME,
+          uuid: uuidv4(),
+          ...parsedBody,
+        });
+        return formatHttpResponse("OK");
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    case "PATCH":
+      try {
+        await modifyDBWidget(dbClient, {
+          TABLE_NAME: WIDGETS_TABLE_NAME,
+          ...parsedBody,
+        });
+        return formatHttpResponse("OK");
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    case "DELETE":
+      try {
+        await deleteDBWidget(dbClient, {
+          TABLE_NAME: WIDGETS_TABLE_NAME,
+          ...parsedBody,
+        });
+        return formatHttpResponse("OK");
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    case "GET":
+      try {
+        const screens = await getDBAllFromTables(dbClient, {
+          TABLE_NAME: WIDGETS_TABLE_NAME,
+        });
+        return formatHttpResponse(screens);
+      } catch (error) {
+        return formatHttpError({
+          statusCode: 500,
+          message: INTERNAL + error,
+        });
+      }
+    default:
+      return formatHttpError({
+        statusCode: 400,
+        message: HTTP_METHOD_ERROR,
+      });
+  }
+};
 
 exports.clientUsers = async function (event, context) {
   const { httpMethod, body } = event;

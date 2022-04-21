@@ -1,14 +1,21 @@
 const REQUIRED_KEYS_SOLUTIONS = {
   POST: ["name", "owner"],
   DELETE: ["id", "owner"],
-  PATCH: ["id", "owner"],
+  PATCH: ["id", "owner", "name"],
   GET: [],
 };
 
 const REQUIRED_KEYS_SCREENS = {
   POST: ["name", "solution_id"],
   DELETE: ["id", "solution_id"],
-  PATCH: ["id", "solution_id"],
+  PATCH: ["id", "solution_id", "name"],
+  GET: [],
+};
+
+const REQUIRED_KEYS_WIDGETS = {
+  POST: ["name", "screen_id", "data"],
+  DELETE: ["id", "screen_id"],
+  PATCH: ["id", "screen_id", "data", "name"],
   GET: [],
 };
 
@@ -29,7 +36,12 @@ const checkRequiredKeysForScreens = (action, data) => {
   return compareKeys(REQUIRED_KEYS_SCREENS[action], Object.keys(data));
 };
 
+const checkRequiredKeysForWidgets = (action, data) => {
+  return compareKeys(REQUIRED_KEYS_WIDGETS[action], Object.keys(data));
+};
+
 module.exports = {
   checkRequiredKeysForSolutions,
   checkRequiredKeysForScreens,
+  checkRequiredKeysForWidgets,
 };
