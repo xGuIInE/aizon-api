@@ -8,10 +8,16 @@ const {
   INVALID_FIELDS,
 } = require("./errors/messages");
 const adminUserMock = require("./mocks/adminUsers.json");
-const createSolutionsMock = require("./mocks/createSolution.json");
-const deleteSolutionsMock = require("./mocks/deleteSolution.json");
-const modifySolution = require("./mocks/modifySolution.json");
-const getSolutionsMock = require("./mocks/getSolution.json");
+// Solution mocks
+const createSolutionMock = require("./mocks/solutions/createSolution.json");
+const deleteSolutionMock = require("./mocks/solutions/deleteSolution.json");
+const modifySolutionMock = require("./mocks/solutions/modifySolution.json");
+const getSolutionsMock = require("./mocks/solutions/getSolution.json");
+// Screen mocks
+const createScreenMock = require("./mocks/screens/createScreen.json");
+const deleteScreenMock = require("./mocks/screens/deleteScreen.json");
+const modifyScreenMock = require("./mocks/screens/modifyScreen.json");
+const getScreensMock = require("./mocks/screens/getScreen.json");
 const SOLUTIONS_MOCK = { Items: [{ solutions: true }] };
 // jest.mock("aws-sdk");
 jest.mock("aws-sdk", () => {
@@ -91,17 +97,17 @@ describe("Admin users", () => {
 
 describe("Manage solutions", () => {
   test("Can create solutions", async () => {
-    let response = await index.adminSolutions(createSolutionsMock, null);
+    let response = await index.adminSolutions(createSolutionMock, null);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBe("OK");
   });
   test("Can delete solutions", async () => {
-    let response = await index.adminSolutions(deleteSolutionsMock, null);
+    let response = await index.adminSolutions(deleteSolutionMock, null);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBe("OK");
   });
   test("Can modify solutions", async () => {
-    let response = await index.adminSolutions(modifySolution, null);
+    let response = await index.adminSolutions(modifySolutionMock, null);
     expect(response.statusCode).toBe(200);
     expect(response.body).toBe("OK");
   });
@@ -111,32 +117,85 @@ describe("Manage solutions", () => {
     expect(response.body).toBe(SOLUTIONS_MOCK.Items);
   });
   test("Can't create solutions with bad fields", async () => {
-    createSolutionsMock.body = JSON.stringify({ bad: true });
-    let response = await index.adminSolutions(createSolutionsMock, null);
+    createSolutionMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminSolutions(createSolutionMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(INVALID_FIELDS);
   });
   test("Can't delete solutions with bad fields", async () => {
-    deleteSolutionsMock.body = JSON.stringify({ bad: true });
-    let response = await index.adminSolutions(deleteSolutionsMock, null);
+    deleteSolutionMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminSolutions(deleteSolutionMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(INVALID_FIELDS);
   });
   test("Can't modify solutions with bad fields", async () => {
-    modifySolution.body = JSON.stringify({ bad: true });
-    let response = await index.adminSolutions(modifySolution, null);
+    modifySolutionMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminSolutions(modifySolutionMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(INVALID_FIELDS);
   });
   test("Only GET/POST/DELETE/PATCH is allowed", async () => {
-    createSolutionsMock.httpMethod = "PUT";
-    let response = await index.adminSolutions(createSolutionsMock, null);
+    createSolutionMock.httpMethod = "PUT";
+    let response = await index.adminSolutions(createSolutionMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(HTTP_METHOD_ERROR);
   });
   test("Json body is required", async () => {
-    createSolutionsMock.body = null;
-    let response = await index.adminSolutions(createSolutionsMock, null);
+    createSolutionMock.body = null;
+    let response = await index.adminSolutions(createSolutionMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(JSON_BODY_REQUIRED);
+  });
+});
+
+describe("Manage screens", () => {
+  test("Can create screens", async () => {
+    let response = await index.adminScreens(createScreenMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can delete screens", async () => {
+    let response = await index.adminScreens(deleteScreenMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can modify screens", async () => {
+    let response = await index.adminScreens(modifyScreenMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe("OK");
+  });
+  test("Can get screens", async () => {
+    let response = await index.adminScreens(getScreensMock, null);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBe(SOLUTIONS_MOCK.Items);
+  });
+  test("Can't create screens with bad fields", async () => {
+    createScreenMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminScreens(createScreenMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Can't delete screens with bad fields", async () => {
+    deleteScreenMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminScreens(deleteScreenMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Can't modify screens with bad fields", async () => {
+    modifyScreenMock.body = JSON.stringify({ bad: true });
+    let response = await index.adminScreens(modifyScreenMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(INVALID_FIELDS);
+  });
+  test("Only GET/POST/DELETE/PATCH is allowed", async () => {
+    createScreenMock.httpMethod = "PUT";
+    let response = await index.adminScreens(createScreenMock, null);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toBe(HTTP_METHOD_ERROR);
+  });
+  test("Json body is required", async () => {
+    createScreenMock.body = null;
+    let response = await index.adminScreens(createScreenMock, null);
     expect(response.statusCode).toBe(400);
     expect(response.body).toBe(JSON_BODY_REQUIRED);
   });
