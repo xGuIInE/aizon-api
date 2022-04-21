@@ -1,7 +1,14 @@
-const REQUIRED_KEYS = {
+const REQUIRED_KEYS_SOLUTIONS = {
   POST: ["name", "owner"],
   DELETE: ["id", "owner"],
   PATCH: ["id", "owner"],
+  GET: [],
+};
+
+const REQUIRED_KEYS_SCREENS = {
+  POST: ["name", "solution_id"],
+  DELETE: ["id", "solution_id"],
+  PATCH: ["id", "solution_id"],
   GET: [],
 };
 
@@ -14,10 +21,15 @@ const compareKeys = (a, b) => {
   return included;
 };
 
-const checkRequiredKeys = (action, data) => {
-  return compareKeys(REQUIRED_KEYS[action], Object.keys(data));
+const checkRequiredKeysForSolutions = (action, data) => {
+  return compareKeys(REQUIRED_KEYS_SOLUTIONS[action], Object.keys(data));
+};
+
+const checkRequiredKeysForScreens = (action, data) => {
+  return compareKeys(REQUIRED_KEYS_SCREENS[action], Object.keys(data));
 };
 
 module.exports = {
-  checkRequiredKeys,
+  checkRequiredKeysForSolutions,
+  checkRequiredKeysForScreens,
 };
