@@ -7,6 +7,7 @@ const REQUIRED_KEYS = {
 
 const compareKeys = (a, b) => {
   let included = true;
+  if (a === undefined) return true;
   a.forEach((k) => {
     if (!b.includes(k)) included = false;
   });

@@ -106,8 +106,6 @@ exports.adminSolutions = async function (event, context) {
 
   let parsedBody;
 
-  console.log(body);
-
   if ((parsedBody = parseJSON(body))) {
     if (!checkRequiredKeys(httpMethod, parsedBody))
       return formatHttpError({
