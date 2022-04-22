@@ -26,6 +26,16 @@ Resources:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-solutions
+      GlobalSecondaryIndexes:
+        - IndexName: owner-key
+          KeySchema:
+            - AttributeName: "owner"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
   ScreensTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -43,6 +53,16 @@ Resources:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-screens
+      GlobalSecondaryIndexes:
+        - IndexName: solution_id-key
+          KeySchema:
+            - AttributeName: "solution_id"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
   WidgetsTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -60,6 +80,16 @@ Resources:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-widgets
+      GlobalSecondaryIndexes:
+        - IndexName: screen_id-key
+          KeySchema:
+            - AttributeName: "screen_id"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
   # USER POOLS
   adminPool:
     Type: AWS::Cognito::UserPool
@@ -119,12 +149,12 @@ Resources:
                 - Arn
             AuthType: "COGNITO_USER_POOLS"
         DefaultAuthorizer: AdminUsers
-  # clientsApi:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     StageName: !Sub ${Environment}-clients-api
-  #     TracingEnabled: true
-  #     OpenApiVersion: 3.0.2
+  clientsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Sub ${Environment}-clients-api
+      TracingEnabled: true
+      OpenApiVersion: 3.0.2
 
   # PERMISSIONS
   cognitoAllow:
@@ -158,7 +188,6 @@ Resources:
       Environment:
         Variables:
           USER_POOL_ID: !Ref clientPool
-          # USER_POOL_APP_ID: !Ref clientPoolAppClient
       Events:
         createUser:
           Type: Api
@@ -192,7 +221,6 @@ Resources:
       Environment:
         Variables:
           SOLUTIONS_TABLE_NAME: !Ref SolutionsTable
-          # PENDING
       Events:
         getSolutions:
           Type: Api
@@ -238,7 +266,6 @@ Resources:
       Environment:
         Variables:
           SCREENS_TABLE_NAME: !Ref ScreensTable
-          # PENDING
       Events:
         getScreens:
           Type: Api
@@ -284,7 +311,6 @@ Resources:
       Environment:
         Variables:
           WIDGETS_TABLE_NAME: !Ref WidgetsTable
-          # PENDING
       Events:
         getWidgets:
           Type: Api
@@ -310,30 +336,36 @@ Resources:
             RestApiId: !Ref adminApi
             Path: /widgets
             Method: DELETE
-  # clientFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Handler: admin.clientUsers
-  #     Runtime: nodejs14.x
-  #     CodeUri: function/.
-  #     Description: Manage users
-  #     Timeout: 10
-  #     FunctionName: !Sub ${Environment}-client-function
-  #     Policies:
-  #       - AWSLambdaBasicExecutionRole
-  #       - AWSLambda_ReadOnlyAccess
-  #       - AWSXrayWriteOnlyAccess
-  #       - !Ref cognitoAllow
 
-  #     Tracing: Active
-  #     Environment:
-  #       Variables:
-  #         USER_POOL_ID: !Ref clientPool
-  #         USER_POOL_APP_ID: !Ref clientPoolAppClient
-  #     Events:
-  #       logIn:
-  #         Type: Api
-  #         Properties:
-  #           RestApiId: !Ref clientsApi
-  #           Path: /auth
-  #           Method: POST
+  clientFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: client.clientUsers
+      Runtime: nodejs14.x
+      CodeUri: function/.
+      Description: Manage users
+      Timeout: 10
+      FunctionName: !Sub ${Environment}-client-function
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBReadPolicy:
+            TableName: !Ref SolutionsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ScreensTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref WidgetsTable
+      Tracing: Active
+      Environment:
+        Variables:
+          SOLUTIONS_TABLE_NAME: !Ref SolutionsTable
+          SCREENS_TABLE_NAME: !Ref ScreensTable
+          WIDGETS_TABLE_NAME: !Ref WidgetsTable
+      Events:
+        logIn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref clientsApi
+            Path: /solution
+            Method: GET

@@ -190,6 +190,80 @@ const deleteDBWidget = async function (dbClient, data) {
   console.log(`Deleted solution in ${TABLE_NAME}`);
 };
 
+// Clients
+async function getSolutionsForUser(dbClient, data) {
+  const { TABLE_NAME, user } = data;
+  const solution = await dbClient
+    .query({
+      TableName: TABLE_NAME,
+      IndexName: "owner-key",
+      ExpressionAttributeNames: {
+        "#owner": "owner",
+      },
+      KeyConditionExpression: "#owner = :sOwner",
+      ExpressionAttributeValues: {
+        ":sOwner": { S: user },
+      },
+    })
+    .promise();
+  solution.Items.forEach((item) => {
+    console.log("id: ", item.id.S);
+  });
+  return solution.Items;
+}
+
+async function getScreensForUser(dbClient, data) {
+  const { TABLE_NAME, solution_ids } = data;
+  console.log("Ids: ", JSON.stringify(solution_ids));
+  const screens = await Promise.all(
+    solution_ids.map((solution_id) =>
+      dbClient
+        .query({
+          TableName: TABLE_NAME,
+          IndexName: "solution_id-key",
+          KeyConditionExpression: "solution_id = :sSolution_id",
+          ExpressionAttributeValues: {
+            ":sSolution_id": { S: solution_id },
+          },
+        })
+        .promise()
+    )
+  );
+
+  console.log(
+    "Screens: ",
+    JSON.stringify(screens.map((screen) => screen.Items))
+  );
+
+  return screens.map((screen) => screen.Items);
+}
+
+async function getWidgetsForUser(dbClient, data) {
+  const { TABLE_NAME, screens_ids } = data;
+  console.log("Ids: ", JSON.stringify(screens_ids));
+  const widgets = await Promise.all(
+    screens_ids.flat().map((screen_id) =>
+      dbClient
+        .query({
+          TableName: TABLE_NAME,
+          IndexName: "screen_id-key",
+          KeyConditionExpression: "screen_id = :sScreen_id",
+          ExpressionAttributeValues: {
+            ":sScreen_id": { S: screen_id },
+          },
+        })
+        .promise()
+    )
+  );
+
+  console.log(
+    "Widgets: ",
+    JSON.stringify(widgets.map((widget) => widget.Items).flat())
+  );
+
+  return widgets.map((screen) => screen.Items).flat();
+}
+
 module.exports = {
   writeDBSolution,
   deleteDBSolution,
@@ -201,4 +275,7 @@ module.exports = {
   writeDBWidget,
   modifyDBWidget,
   deleteDBWidget,
+  getSolutionsForUser,
+  getScreensForUser,
+  getWidgetsForUser,
 };
