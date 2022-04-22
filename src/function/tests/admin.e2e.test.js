@@ -1,11 +1,12 @@
 const request = require("supertest");
+const {
+  AuthenticationResult: { IdToken: adminToken },
+} = require("../../../admin/tokenId.json");
 
 const ADMIN_API_URL =
   "https://h0zyzsfwk1.execute-api.eu-west-1.amazonaws.com/stage-admin-api";
 
-const ADMIN_API_ENDPOINTS = ["/solutions", "/screens", "/widgets"];
-
-const AUTH_DATA = require("../../../admin/tokenId.json");
+const ADMIN_API_ENDPOINTS = ["/solutions", "/screens", "/widgets", "/users"];
 
 jest.setTimeout(30000);
 
@@ -24,7 +25,29 @@ const SAMPLE_WIDGET_DATA = {
   screen_id: "A-SCREEN-ID",
   data: "[1, 2, 3, 4, 5, 6, 7, 8]",
 };
-describe("[E2E] Check auth", () => {
+
+const SAMPLE_USER = { email: "guine0123@gmail.com" };
+
+describe("[E2E] Admin users", () => {
+  it("Can create users", async () => {
+    const res = await request(ADMIN_API_URL)
+      .post(ADMIN_API_ENDPOINTS[3])
+      .send(SAMPLE_USER)
+      .set("Authorization", adminToken);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.res).toBe("OK");
+  });
+  it("Can delete users", async () => {
+    const res = await request(ADMIN_API_URL)
+      .delete(ADMIN_API_ENDPOINTS[3])
+      .send(SAMPLE_USER)
+      .set("Authorization", adminToken);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.res).toBe("OK");
+  });
+});
+
+describe("[E2E] Check auth for managing solutions/screens/widgets", () => {
   it("Can't create solutions/screens/widgets without auth", async () => {
     ADMIN_API_ENDPOINTS.forEach((endpoint) => {});
     const responsesPost = await Promise.all(
@@ -67,7 +90,6 @@ describe("[E2E] Check auth", () => {
 
 describe("[E2E] Manage solutions", () => {
   it("Can create solution", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .post(ADMIN_API_ENDPOINTS[0])
       .send(SAMPLE_SOLUTION_DATA)
@@ -77,7 +99,6 @@ describe("[E2E] Manage solutions", () => {
   });
 
   it("Can get/modify/delete solutions", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .get(ADMIN_API_ENDPOINTS[0])
       .send()
@@ -114,7 +135,6 @@ describe("[E2E] Manage solutions", () => {
 
 describe("[E2E] Manage screens", () => {
   it("Can create screen", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .post(ADMIN_API_ENDPOINTS[1])
       .send(SAMPLE_SCREEN_DATA)
@@ -124,7 +144,6 @@ describe("[E2E] Manage screens", () => {
   });
 
   it("Can get/modify/delete screens", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .get(ADMIN_API_ENDPOINTS[1])
       .send()
@@ -161,7 +180,6 @@ describe("[E2E] Manage screens", () => {
 
 describe("[E2E] Manage widgets", () => {
   it("Can create widget", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .post(ADMIN_API_ENDPOINTS[2])
       .send(SAMPLE_WIDGET_DATA)
@@ -172,7 +190,6 @@ describe("[E2E] Manage widgets", () => {
   });
 
   it("Can get/modify/delete widgets", async () => {
-    const adminToken = AUTH_DATA.AuthenticationResult.IdToken;
     const res = await request(ADMIN_API_URL)
       .get(ADMIN_API_ENDPOINTS[2])
       .send()
