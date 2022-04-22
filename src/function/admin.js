@@ -32,6 +32,8 @@ const {
 } = require("./errors/messages");
 const parseJSON = require("./utils/parseJSON");
 
+const RES_OK = { res: "OK" };
+
 // Admin users
 exports.adminUsers = async function (event, context) {
   const {
@@ -72,7 +74,7 @@ exports.adminUsers = async function (event, context) {
           USER_POOL_ID,
           cognitoIdentityServiceProvider,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -86,7 +88,7 @@ exports.adminUsers = async function (event, context) {
           USER_POOL_ID,
           cognitoIdentityServiceProvider,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -106,20 +108,23 @@ exports.adminSolutions = async function (event, context) {
 
   const { SOLUTIONS_TABLE_NAME } = process.env;
 
+  console.log(body);
+
   let parsedBody;
 
-  if ((parsedBody = parseJSON(body))) {
-    if (!checkRequiredKeysForSolutions(httpMethod, parsedBody))
+  if (httpMethod !== "GET")
+    if ((parsedBody = parseJSON(body))) {
+      if (!checkRequiredKeysForSolutions(httpMethod, parsedBody))
+        return formatHttpError({
+          statusCode: 400,
+          message: INVALID_FIELDS,
+        });
+    } else {
       return formatHttpError({
         statusCode: 400,
-        message: INVALID_FIELDS,
+        message: JSON_BODY_REQUIRED,
       });
-  } else {
-    return formatHttpError({
-      statusCode: 400,
-      message: JSON_BODY_REQUIRED,
-    });
-  }
+    }
 
   switch (httpMethod) {
     case "GET":
@@ -141,7 +146,7 @@ exports.adminSolutions = async function (event, context) {
           uuid: uuidv4(),
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -154,7 +159,7 @@ exports.adminSolutions = async function (event, context) {
           TABLE_NAME: SOLUTIONS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -167,7 +172,7 @@ exports.adminSolutions = async function (event, context) {
           TABLE_NAME: SOLUTIONS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -188,18 +193,19 @@ exports.adminScreens = async function (event, context) {
 
   let parsedBody;
 
-  if ((parsedBody = parseJSON(body))) {
-    if (!checkRequiredKeysForScreens(httpMethod, parsedBody))
+  if (httpMethod !== "GET")
+    if ((parsedBody = parseJSON(body))) {
+      if (!checkRequiredKeysForScreens(httpMethod, parsedBody))
+        return formatHttpError({
+          statusCode: 400,
+          message: INVALID_FIELDS,
+        });
+    } else {
       return formatHttpError({
         statusCode: 400,
-        message: INVALID_FIELDS,
+        message: JSON_BODY_REQUIRED,
       });
-  } else {
-    return formatHttpError({
-      statusCode: 400,
-      message: JSON_BODY_REQUIRED,
-    });
-  }
+    }
 
   switch (httpMethod) {
     case "POST":
@@ -209,7 +215,7 @@ exports.adminScreens = async function (event, context) {
           uuid: uuidv4(),
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -222,7 +228,7 @@ exports.adminScreens = async function (event, context) {
           TABLE_NAME: SCREENS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -235,7 +241,7 @@ exports.adminScreens = async function (event, context) {
           TABLE_NAME: SCREENS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -268,18 +274,19 @@ exports.adminWidgets = async function (event, context) {
 
   let parsedBody;
 
-  if ((parsedBody = parseJSON(body))) {
-    if (!checkRequiredKeysForWidgets(httpMethod, parsedBody))
+  if (httpMethod !== "GET")
+    if ((parsedBody = parseJSON(body))) {
+      if (!checkRequiredKeysForWidgets(httpMethod, parsedBody))
+        return formatHttpError({
+          statusCode: 400,
+          message: INVALID_FIELDS,
+        });
+    } else {
       return formatHttpError({
         statusCode: 400,
-        message: INVALID_FIELDS,
+        message: JSON_BODY_REQUIRED,
       });
-  } else {
-    return formatHttpError({
-      statusCode: 400,
-      message: JSON_BODY_REQUIRED,
-    });
-  }
+    }
 
   switch (httpMethod) {
     case "POST":
@@ -289,7 +296,7 @@ exports.adminWidgets = async function (event, context) {
           uuid: uuidv4(),
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -302,7 +309,7 @@ exports.adminWidgets = async function (event, context) {
           TABLE_NAME: WIDGETS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,
@@ -315,7 +322,7 @@ exports.adminWidgets = async function (event, context) {
           TABLE_NAME: WIDGETS_TABLE_NAME,
           ...parsedBody,
         });
-        return formatHttpResponse("OK");
+        return formatHttpResponse(RES_OK);
       } catch (error) {
         return formatHttpError({
           statusCode: 500,

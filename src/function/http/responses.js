@@ -5,7 +5,7 @@ const formatHttpResponse = function (body) {
       "Content-Type": "application/json",
     },
     isBase64Encoded: false,
-    body: body,
+    body: JSON.stringify(body),
   };
   return response;
 };
@@ -22,4 +22,7 @@ const formatHttpError = function (error) {
   return response;
 };
 
-module.exports = { formatHttpResponse, formatHttpError };
+module.exports = {
+  formatHttpResponse,
+  formatHttpError,
+};
