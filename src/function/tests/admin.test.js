@@ -68,14 +68,14 @@ describe("Admin users", () => {
     adminUserMock.httpMethod = "POST";
     let response = await index.adminUsers(adminUserMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
 
   test("Can delete users", async () => {
     adminUserMock.httpMethod = "DELETE";
     let response = await index.adminUsers(adminUserMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
 
   test("Only POST/DELETE is allowed", async () => {
@@ -104,22 +104,22 @@ describe("Manage solutions", () => {
   test("Can create solutions", async () => {
     let response = await index.adminSolutions(createSolutionMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can delete solutions", async () => {
     let response = await index.adminSolutions(deleteSolutionMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can modify solutions", async () => {
     let response = await index.adminSolutions(modifySolutionMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can get solutions", async () => {
     let response = await index.adminSolutions(getSolutionsMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe(SOLUTIONS_MOCK.Items);
+    expect(JSON.parse(response.body)[0].solutions).toBe(true);
   });
   test("Can't create solutions with bad fields", async () => {
     createSolutionMock.body = JSON.stringify({ bad: true });
@@ -157,22 +157,22 @@ describe("Manage screens", () => {
   test("Can create screens", async () => {
     let response = await index.adminScreens(createScreenMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can delete screens", async () => {
     let response = await index.adminScreens(deleteScreenMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can modify screens", async () => {
     let response = await index.adminScreens(modifyScreenMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can get screens", async () => {
     let response = await index.adminScreens(getScreensMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe(SOLUTIONS_MOCK.Items);
+    expect(JSON.parse(response.body)[0].solutions).toBe(true);
   });
   test("Can't create screens with bad fields", async () => {
     createScreenMock.body = JSON.stringify({ bad: true });
@@ -210,22 +210,22 @@ describe("Manage widgets", () => {
   test("Can create widgets", async () => {
     let response = await index.adminWidgets(createWidgetMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can delete widgets", async () => {
     let response = await index.adminWidgets(deleteWidgetMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can modify widgets", async () => {
     let response = await index.adminWidgets(modifyWidgetMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe("OK");
+    expect(JSON.parse(response.body).res).toBe("OK");
   });
   test("Can get widgets", async () => {
     let response = await index.adminWidgets(getWidgetsMock, null);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe(SOLUTIONS_MOCK.Items);
+    expect(JSON.parse(response.body)[0].solutions).toBe(true);
   });
   test("Can't create widgets with bad fields", async () => {
     createWidgetMock.body = JSON.stringify({ bad: true });
