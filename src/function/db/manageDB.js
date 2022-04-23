@@ -192,11 +192,12 @@ const deleteDBWidget = async function (dbClient, data) {
 
 // Clients
 async function getSolutionsForUser(dbClient, data) {
-  const { TABLE_NAME, user } = data;
+  const { TABLE_NAME, user, SOLUTIONS_TABLE_INDEX } = data;
+  console.log(JSON.stringify(data));
   const solutions = await dbClient
     .query({
       TableName: TABLE_NAME,
-      IndexName: "owner-key",
+      IndexName: SOLUTIONS_TABLE_INDEX,
       ExpressionAttributeNames: {
         "#owner": "owner",
       },
@@ -212,14 +213,14 @@ async function getSolutionsForUser(dbClient, data) {
 }
 
 async function getScreensForUser(dbClient, data) {
-  const { TABLE_NAME, solution_ids } = data;
+  const { TABLE_NAME, solution_ids, SCREENS_TABLE_INDEX } = data;
   console.log("[SOLUTIONS] Ids for screens: ", JSON.stringify(solution_ids));
   const screens = await Promise.all(
     solution_ids.map((solution_id) =>
       dbClient
         .query({
           TableName: TABLE_NAME,
-          IndexName: "solution_id-key",
+          IndexName: SCREENS_TABLE_INDEX,
           KeyConditionExpression: "solution_id = :sSolution_id",
           ExpressionAttributeValues: {
             ":sSolution_id": { S: solution_id },
@@ -235,7 +236,7 @@ async function getScreensForUser(dbClient, data) {
 }
 
 async function getWidgetsForUser(dbClient, data) {
-  const { TABLE_NAME, screens_ids } = data;
+  const { TABLE_NAME, screens_ids, WIDGETS_TABLE_INDEX } = data;
   console.log(
     "[SCREENS] ids for widgets: ",
     JSON.stringify(screens_ids.flat())
@@ -245,7 +246,7 @@ async function getWidgetsForUser(dbClient, data) {
       dbClient
         .query({
           TableName: TABLE_NAME,
-          IndexName: "screen_id-key",
+          IndexName: WIDGETS_TABLE_INDEX,
           KeyConditionExpression: "screen_id = :sScreen_id",
           ExpressionAttributeValues: {
             ":sScreen_id": { S: screen_id },

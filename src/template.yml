@@ -6,6 +6,15 @@ Parameters:
   Environment:
     Description: Environment prefixed to resource names
     Type: String
+  solutionsIndex:
+    Description: Index name for global secondary index
+    Type: String
+  screensIndex:
+    Description: Index name for global secondary index
+    Type: String
+  widgetsIndex:
+    Description: Index name for global secondary index
+    Type: String
 
 Resources:
   # Tables
@@ -27,7 +36,7 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-solutions
       GlobalSecondaryIndexes:
-        - IndexName: owner-key
+        - IndexName: !Sub ${solutionsIndex}
           KeySchema:
             - AttributeName: "owner"
               KeyType: "HASH"
@@ -54,7 +63,7 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-screens
       GlobalSecondaryIndexes:
-        - IndexName: solution_id-key
+        - IndexName: !Sub ${screensIndex}
           KeySchema:
             - AttributeName: "solution_id"
               KeyType: "HASH"
@@ -81,7 +90,7 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Sub ${Environment}-aizon-widgets
       GlobalSecondaryIndexes:
-        - IndexName: screen_id-key
+        - IndexName: !Sub ${widgetsIndex}
           KeySchema:
             - AttributeName: "screen_id"
               KeyType: "HASH"
@@ -138,6 +147,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Sub ${Environment}-admin-api
+      Name: !Sub ${Environment}-admin-api
       TracingEnabled: true
       OpenApiVersion: 3.0.2
       Auth:
@@ -153,8 +163,18 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Sub ${Environment}-clients-api
+      Name: !Sub ${Environment}-clients-api
       TracingEnabled: true
       OpenApiVersion: 3.0.2
+      Auth:
+        Authorizers:
+          AdminUsers:
+            UserPoolArn:
+              Fn::GetAtt:
+                - clientPool
+                - Arn
+            AuthType: "COGNITO_USER_POOLS"
+        DefaultAuthorizer: AdminUsers
 
   # PERMISSIONS
   cognitoAllow:
@@ -360,8 +380,11 @@ Resources:
       Environment:
         Variables:
           SOLUTIONS_TABLE_NAME: !Ref SolutionsTable
+          SOLUTIONS_TABLE_INDEX: !Sub ${solutionsIndex}
           SCREENS_TABLE_NAME: !Ref ScreensTable
+          SCREENS_TABLE_INDEX: !Sub ${screensIndex}
           WIDGETS_TABLE_NAME: !Ref WidgetsTable
+          WIDGETS_TABLE_INDEX: !Sub ${widgetsIndex}
       Events:
         logIn:
           Type: Api
