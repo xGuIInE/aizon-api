@@ -9,7 +9,10 @@
     "supertest": "^6.2.2"
   },
   "scripts": {
-    "test": "jest"
+    "unit-test-admin": "jest ./src/function/tests/admin.test.js",
+    "unit-test-client": "jest ./src/function/tests/client.test.js",
+    "e2e-test-admin": "jest ./src/function/tests/admin.e2e.test.js",
+    "e2e-test-full": "jest ./src/function/tests/full.e2e.test.js"
   },
   "repository": {
     "type": "git",
