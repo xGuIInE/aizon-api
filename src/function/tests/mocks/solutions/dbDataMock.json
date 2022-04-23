@@ -1,0 +1,13 @@
+{
+  "Items": [
+    {
+      "owner": { "S": "guine0123@gmail.com" },
+      "id": { "S": "a2f8cdd8-56af-467c-86a6-a60657030aaf" },
+      "icon": { "S": "" },
+      "name": { "S": "Solution 1" },
+      "desc": { "S": "" }
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}

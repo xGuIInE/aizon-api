@@ -8,14 +8,7 @@ const {
   getWidgetsForUser,
 } = require("./db/manageDB");
 
-const {
-  JSON_BODY_REQUIRED,
-  EMAIL_REQUIRED,
-  INTERNAL,
-  HTTP_METHOD_ERROR,
-  EMAIL_AND_PASSWD_REQUIRED,
-  INVALID_FIELDS,
-} = require("./errors/messages");
+const { INTERNAL, HTTP_METHOD_ERROR } = require("./errors/messages");
 
 exports.clientUsers = async function (event, context) {
   const {
@@ -51,7 +44,7 @@ exports.clientUsers = async function (event, context) {
 
         return formatHttpResponse({
           solutions,
-          screens,
+          screens: screens.flat(),
           widgets,
         });
       } catch (error) {

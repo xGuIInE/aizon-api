@@ -24,7 +24,7 @@ const deleteWidgetMock = require("./mocks/widgets/deleteWidget.json");
 const modifyWidgetMock = require("./mocks/widgets/modifyWidget.json");
 const getWidgetsMock = require("./mocks/widgets/getWidget.json");
 const SOLUTIONS_MOCK = { Items: [{ solutions: true }] };
-// jest.mock("aws-sdk");
+
 jest.mock("aws-sdk", () => {
   return {
     config: {

@@ -193,7 +193,7 @@ const deleteDBWidget = async function (dbClient, data) {
 // Clients
 async function getSolutionsForUser(dbClient, data) {
   const { TABLE_NAME, user } = data;
-  const solution = await dbClient
+  const solutions = await dbClient
     .query({
       TableName: TABLE_NAME,
       IndexName: "owner-key",
@@ -206,15 +206,14 @@ async function getSolutionsForUser(dbClient, data) {
       },
     })
     .promise();
-  solution.Items.forEach((item) => {
-    console.log("id: ", item.id.S);
-  });
-  return solution.Items;
+
+  console.log("SOLUTIONS: ", JSON.stringify(solutions));
+  return solutions.Items;
 }
 
 async function getScreensForUser(dbClient, data) {
   const { TABLE_NAME, solution_ids } = data;
-  console.log("Ids: ", JSON.stringify(solution_ids));
+  console.log("[SOLUTIONS] Ids for screens: ", JSON.stringify(solution_ids));
   const screens = await Promise.all(
     solution_ids.map((solution_id) =>
       dbClient
@@ -230,17 +229,17 @@ async function getScreensForUser(dbClient, data) {
     )
   );
 
-  console.log(
-    "Screens: ",
-    JSON.stringify(screens.map((screen) => screen.Items))
-  );
+  console.log("SCREENS: ", JSON.stringify(screens));
 
   return screens.map((screen) => screen.Items);
 }
 
 async function getWidgetsForUser(dbClient, data) {
   const { TABLE_NAME, screens_ids } = data;
-  console.log("Ids: ", JSON.stringify(screens_ids));
+  console.log(
+    "[SCREENS] ids for widgets: ",
+    JSON.stringify(screens_ids.flat())
+  );
   const widgets = await Promise.all(
     screens_ids.flat().map((screen_id) =>
       dbClient
@@ -256,12 +255,9 @@ async function getWidgetsForUser(dbClient, data) {
     )
   );
 
-  console.log(
-    "Widgets: ",
-    JSON.stringify(widgets.map((widget) => widget.Items).flat())
-  );
+  console.log("WIDGETS: ", JSON.stringify(widgets));
 
-  return widgets.map((screen) => screen.Items).flat();
+  return widgets.map((widget) => widget.Items).flat();
 }
 
 module.exports = {

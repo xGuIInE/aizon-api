@@ -1,0 +1,14 @@
+{
+  "Items": [
+    {
+      "screen_id": { "S": "6311d96d-2809-4533-9e16-abd6207d899e" },
+      "icon": { "S": "" },
+      "data": { "S": "[1,2,3,4,5,6,7,8,9,10]" },
+      "id": { "S": "e3d661f6-e85b-4efb-b736-73a56e6109da" },
+      "name": { "S": "Widget 1" },
+      "desc": { "S": "" }
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}

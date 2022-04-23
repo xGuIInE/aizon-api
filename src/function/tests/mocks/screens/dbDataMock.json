@@ -1,0 +1,20 @@
+{
+  "Items": [
+    {
+      "id": { "S": "08c89ce2-8be2-449c-bd85-9b3b9e15e294" },
+      "icon": { "S": "" },
+      "solution_id": { "S": "a2f8cdd8-56af-467c-86a6-a60657030aaf" },
+      "name": { "S": "Screen 2" },
+      "desc": { "S": "" }
+    },
+    {
+      "id": { "S": "6311d96d-2809-4533-9e16-abd6207d899e" },
+      "icon": { "S": "" },
+      "solution_id": { "S": "a2f8cdd8-56af-467c-86a6-a60657030aaf" },
+      "name": { "S": "Screen 1" },
+      "desc": { "S": "" }
+    }
+  ],
+  "Count": 2,
+  "ScannedCount": 2
+}
