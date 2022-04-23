@@ -197,7 +197,7 @@ async function getSolutionsForUser(dbClient, data) {
   const solutions = await dbClient
     .query({
       TableName: TABLE_NAME,
-      IndexName: SOLUTIONS_TABLE_INDEX,
+      IndexName: SOLUTIONS_TABLE_INDEX || "owner-key",
       ExpressionAttributeNames: {
         "#owner": "owner",
       },
@@ -220,7 +220,7 @@ async function getScreensForUser(dbClient, data) {
       dbClient
         .query({
           TableName: TABLE_NAME,
-          IndexName: SCREENS_TABLE_INDEX,
+          IndexName: SCREENS_TABLE_INDEX || "solution_id-key",
           KeyConditionExpression: "solution_id = :sSolution_id",
           ExpressionAttributeValues: {
             ":sSolution_id": { S: solution_id },
@@ -246,7 +246,7 @@ async function getWidgetsForUser(dbClient, data) {
       dbClient
         .query({
           TableName: TABLE_NAME,
-          IndexName: WIDGETS_TABLE_INDEX,
+          IndexName: WIDGETS_TABLE_INDEX || "screen_id-key",
           KeyConditionExpression: "screen_id = :sScreen_id",
           ExpressionAttributeValues: {
             ":sScreen_id": { S: screen_id },

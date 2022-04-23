@@ -93,6 +93,6 @@
     "domainName": "bdl3dq9n3m.execute-api.eu-west-1.amazonaws.com",
     "apiId": "bdl3dq9n3m"
   },
-  "body": "{\"email\": \"guine0123@gmail.com\"}",
+  "body": null,
   "isBase64Encoded": false
 }
