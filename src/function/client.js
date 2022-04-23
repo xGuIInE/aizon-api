@@ -20,8 +20,14 @@ exports.clientUsers = async function (event, context) {
     },
   } = event;
 
-  const { SOLUTIONS_TABLE_NAME, SCREENS_TABLE_NAME, WIDGETS_TABLE_NAME } =
-    process.env;
+  const {
+    SOLUTIONS_TABLE_NAME,
+    SCREENS_TABLE_NAME,
+    WIDGETS_TABLE_NAME,
+    SOLUTIONS_TABLE_INDEX,
+    SCREENS_TABLE_INDEX,
+    WIDGETS_TABLE_INDEX,
+  } = process.env;
 
   switch (httpMethod) {
     case "GET":
@@ -29,16 +35,19 @@ exports.clientUsers = async function (event, context) {
         // Get user solutions
         const solutions = await getSolutionsForUser(dbClient, {
           TABLE_NAME: SOLUTIONS_TABLE_NAME,
+          SOLUTIONS_TABLE_INDEX,
           user: userEmail,
         });
         // Get user screens
         const screens = await getScreensForUser(dbClient, {
           TABLE_NAME: SCREENS_TABLE_NAME,
+          SCREENS_TABLE_INDEX,
           solution_ids: solutions.map((solution) => solution.id.S),
         });
         // Get user screens
         const widgets = await getWidgetsForUser(dbClient, {
           TABLE_NAME: WIDGETS_TABLE_NAME,
+          WIDGETS_TABLE_INDEX,
           screens_ids: screens.map((screen) => screen.map((s) => s.id.S)),
         });
 
