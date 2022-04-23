@@ -5,4 +5,4 @@ src/out.yml
 
 *.env
 admin/tokenId.json
-client/tokenId.txt
+client/tokenId.json

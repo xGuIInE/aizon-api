@@ -28,7 +28,12 @@ function logIn() {
   const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
   cognitoUser.authenticateUser(authenticationDetails, {
     onSuccess: (result) => {
-      fs.writeFileSync("./tokenId.txt", result.getIdToken().getJwtToken());
+      fs.writeFileSync(
+        "./tokenId.json",
+        JSON.stringify({
+          tokenId: result.getIdToken().getJwtToken(),
+        })
+      );
       console.log("Token id saved");
     },
     onFailure: (err) => {
@@ -38,7 +43,12 @@ function logIn() {
       console.log("Changing password...");
       cognitoUser.completeNewPasswordChallenge(PASSWORD, null, {
         onSuccess: (session) => {
-          fs.writeFileSync("./tokenId.txt", session.getIdToken().getJwtToken());
+          fs.writeFileSync(
+            "./tokenId.json",
+            JSON.stringify({
+              tokenId: result.getIdToken().getJwtToken(),
+            })
+          );
           console.log("Token id saved");
         },
         onFailure: (error) => {
