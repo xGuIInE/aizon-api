@@ -59,6 +59,8 @@ Run `node logIn.js true`. `client/tokenId.json` file will be generated. Auth tok
 
 > You must add `Authorization` header with a valid admin IdToken. POST/PATCH/DELETE request must have a JSON body with required keys (listed below). GET request must have null body
 
+> Owner must be a valid cognito client username
+
 - /users
 
   - POST. Creates a new client user. Keys REQUIRED: email.
