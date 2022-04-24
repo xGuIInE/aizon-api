@@ -8,6 +8,8 @@ This sample application is an API using AWS Serverless architecture and the foll
 - Cognito
 - Cloudformation
 
+![architecture](/images/aizon-api-architecture.png)
+
 # Requirements
 
 - [Node.js 10 with npm](https://nodejs.org/en/download/releases/)
@@ -51,9 +53,50 @@ Configure `client/logIn.js`:
 
 Run `node logIn.js true`. `client/tokenId.json` file will be generated. Auth token will be valid only for 1 hour. This token could be used for getting full clients solutions data. (true param indicates that will use temporal password. After first run, you must not pass the param)
 
+# Using the API
+
+### Admin API
+
+```
+You must add `Authorization` header with a valid admin IdToken. POST/PATCH/DELETE request must have a JSON body with required keys (listed below). GET request must have null body
+```
+
+- /users
+
+  - POST. Creates a new client user. Keys REQUIRED: email.
+  - DELETE. Deletes an existing client user. Keys REQUIRED: email.
+
+- /solutions
+
+  - POST. Creates a new solution. Keys REQUIRED: name, owner. OPTIONAL: desc, icon.
+  - GET. Returns all solutions.
+  - PATCH. Modifies an existing solution. Keys REQUIRED: id, name, owner. OPTIONAL: desc, icon.
+  - DELETE. Deletes an existing solution. Keys REQUIRED: id, owner.
+
+- /screens
+  - POST. Creates a new screen, owned by a solution. Keys REQUIRED: name, solution_id. OPTIONAL: desc, icon.
+  - GET. Returns all screens.
+  - PATCH. Modifies an existing screen. Keys REQUIRED: id, name, solution_id. OPTIONAL: desc, icon.
+  - DELETE. Deletes an existing solution. Keys REQUIRED: id, solution_id.
+- /widgets
+  - POST. Creates a new widget, owned by a screen. Keys REQUIRED: name, screen_id, data. OPTIONAL: desc, icon.
+  - GET. Returns all widgets.
+  - PATCH. Modifies an existing widget. Keys REQUIRED: id, name, screen_id, data. OPTIONAL: desc, icon.
+  - DELETE. Deletes an existing widget. Keys REQUIRED: id, screen_id.
+
+### Client API
+
+```
+You must add `Authorization` header with a valid client IdToken. GET request must have null body
+```
+
+- /solutions
+
+  - GET. Returns all solutions, screens and widgets that belongs to the invoking client IdToken.
+
 # Tests
 
-![Architecture](/images/unit-test-admin.png)
-![Architecture](/images/unit-test-clients.png)
-![Architecture](/images/e2e-admin.png)
-![Architecture](/images/e2e-full.png)
+![unit-admin](/images/unit-test-admin.png)
+![unit-client](/images/unit-test-clients.png)
+![e2e-admin](/images/e2e-admin.png)
+![e2e-full](/images/e2e-full.png)
