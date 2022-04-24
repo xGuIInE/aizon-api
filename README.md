@@ -57,9 +57,7 @@ Run `node logIn.js true`. `client/tokenId.json` file will be generated. Auth tok
 
 ### Admin API
 
-```
-You must add `Authorization` header with a valid admin IdToken. POST/PATCH/DELETE request must have a JSON body with required keys (listed below). GET request must have null body
-```
+> You must add `Authorization` header with a valid admin IdToken. POST/PATCH/DELETE request must have a JSON body with required keys (listed below). GET request must have null body
 
 - /users
 
@@ -86,9 +84,7 @@ You must add `Authorization` header with a valid admin IdToken. POST/PATCH/DELET
 
 ### Client API
 
-```
-You must add `Authorization` header with a valid client IdToken. GET request must have null body
-```
+> You must add `Authorization` header with a valid client IdToken. GET request must have null body
 
 - /solutions
 
